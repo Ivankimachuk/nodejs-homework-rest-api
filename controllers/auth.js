@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const gravatar = require("gravatar");
+const Jimp = require("jimp");
 const path = require("path");
 const fs = require("fs/promises");
 
@@ -80,13 +81,16 @@ const Logout = async (req, res) => {
 const apdateAvatar = async (req, res) => {
   const { _id } = req.user;
   const { path: tempUpload, originalname } = req.file;
-  const resultUpload = path.join(avatarsDir, originalname);
+  const filename = `${_id}_${originalname}`;
+  const resultUpload = path.join(avatarsDir, filename);
   await fs.rename(tempUpload, resultUpload);
-  const avatarUrl = path.join("avatars", originalname);
+  const imageJimp = await Jimp.read(resultUpload);
+  await imageJimp.resize(250, 250).writeAsync(resultUpload);
+  const avatarUrl = path.join("avatars", filename);
   await User.findByIdAndUpdate(_id, { avatarUrl });
 
   res.json({
-    avatarUrl,  
+    avatarUrl,
   });
 };
 
