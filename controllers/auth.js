@@ -80,6 +80,10 @@ const Logout = async (req, res) => {
 
 const apdateAvatar = async (req, res) => {
   const { _id } = req.user;
+
+  if (!req.file) 
+  throw HttpError(404, "No file provided");
+  
   const { path: tempUpload, originalname } = req.file;
   const filename = `${_id}_${originalname}`;
   const resultUpload = path.join(avatarsDir, filename);
